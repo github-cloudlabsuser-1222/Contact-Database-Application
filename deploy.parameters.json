@@ -2,14 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "webAppName": {
-      "value": "YourWebAppNameHere"
+    "profileName": {
+      "value": "cdn-cz5id766qayfk"
     },
-    "appServicePlanName": {
-      "value": "YourAppServicePlanNameHere"
+    "endpointName": {
+      "value": "endpoint-cz5id766qayfk"
+    },
+    "serverFarmName": {
+      "value": "asp-cz5id766qayfk"
+    },
+    "webAppName": {
+      "value": "web-cz5id766qayfk"
     },
     "location": {
-      "value": "YourAzureRegionHere"
+      "value": "australiasoutheast"
     }
   }
 }
