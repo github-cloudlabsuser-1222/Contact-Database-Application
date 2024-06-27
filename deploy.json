@@ -24,20 +24,6 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('appServicePlanName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "F1",
-        "tier": "Free"
-      },
-      "properties": {
-        "targetWorkerCount": 0,
-        "targetWorkerSizeId": 0
-      }
-    },
-    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('webAppName')]",
@@ -57,4 +43,3 @@
     }
   }
 }
-
