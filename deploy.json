@@ -1,138 +1,186 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "profileName": {
-      "defaultValue": "[format('cdn-{0}', uniqueString(resourceGroup().id))]",
-      "type": "String",
-      "metadata": {
-        "description": "Name of the CDN Profile"
-      }
+    "subscriptionId": {
+      "type": "String"
     },
-    "endpointName": {
-      "defaultValue": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
-      "type": "String",
-      "metadata": {
-        "description": "Name of the CDN Endpoint, must be unique"
-      }
+    "resourceGroupName": {
+      "type": "String"
     },
-    "serverFarmName": {
-      "defaultValue": "[format('asp-{0}', uniqueString(resourceGroup().id))]",
-      "type": "String",
-      "metadata": {
-        "description": "Name of the App Service Plan"
-      }
-    },
-    "webAppName": {
-      "defaultValue": "[format('web-{0}', uniqueString(resourceGroup().id))]",
-      "type": "String",
-      "metadata": {
-        "description": "Name of the App Service Web App"
-      }
+    "name": {
+      "type": "String"
     },
     "location": {
-      "defaultValue": "[resourceGroup().location]",
-      "type": "String",
-      "metadata": {
-        "description": "Location for all resources."
-      }
+      "type": "String"
+    },
+    "hostingPlanName": {
+      "type": "String"
+    },
+    "serverFarmResourceGroup": {
+      "type": "String"
+    },
+    "alwaysOn": {
+      "type": "Bool"
+    },
+    "ftpsState": {
+      "type": "String"
+    },
+    "currentStack": {
+      "type": "String"
+    },
+    "phpVersion": {
+      "type": "String"
+    },
+    "netFrameworkVersion": {
+      "type": "String"
+    },
+    "repoUrl": {
+      "type": "String"
+    },
+    "branch": {
+      "type": "String"
     }
   },
+  "variables": {},
   "resources": [
     {
-      "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2021-02-01",
-      "name": "[parameters('serverFarmName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "[parameters('serverFarmName')]"
-      },
-      "sku": {
-        "name": "F1",
-        "capacity": 1
-      }
-    },
-    {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-02-01",
-      "name": "[parameters('webAppName')]",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('name')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "microsoft.insights/components/ContactDatabaseapplicationSelemon"
       ],
-      "tags": {
-        "displayName": "[parameters('webAppName')]"
-      },
-      "identity": {
-        "type": "SystemAssigned"
-      },
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]",
+        "name": "[parameters('name')]",
         "siteConfig": {
-          "ftpsState": "FtpsOnly",
-          "minTlsVersion": "1.2",
-          "scmMinTlsVersion": "1.2"
+          "appSettings": [
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference('microsoft.insights/components/ContactDatabaseapplicationSelemon', '2015-05-01').ConnectionString]"
+            },
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_Mode",
+              "value": "default"
+            }
+          ],
+          "metadata": [
+            {
+              "name": "CURRENT_STACK",
+              "value": "[parameters('currentStack')]"
+            }
+          ],
+          "phpVersion": "[parameters('phpVersion')]",
+          "netFrameworkVersion": "[parameters('netFrameworkVersion')]",
+          "alwaysOn": "[parameters('alwaysOn')]",
+          "ftpsState": "[parameters('ftpsState')]"
         },
-        "httpsOnly": true
-      }
-    },
-    {
-      "type": "Microsoft.Cdn/profiles",
-      "apiVersion": "2021-06-01",
-      "name": "[parameters('profileName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "[parameters('profileName')]"
+        "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+        "clientAffinityEnabled": true,
+        "virtualNetworkSubnetId": null,
+        "httpsOnly": true,
+        "publicNetworkAccess": "Enabled"
       },
-      "sku": {
-        "name": "Standard_Microsoft"
-      },
-      "properties": {}
-    },
-    {
-      "type": "Microsoft.Cdn/profiles/endpoints",
-      "apiVersion": "2021-06-01",
-      "name": "[format('{0}/{1}', parameters('profileName'), parameters('endpointName'))]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Cdn/profiles', parameters('profileName'))]",
-        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
-      ],
-      "tags": {
-        "displayName": "[parameters('endpointName')]"
-      },
-      "properties": {
-        "originHostHeader": "[reference(resourceId('Microsoft.Web/sites', parameters('webAppName'))).hostNames[0]]",
-        "isHttpAllowed": true,
-        "isHttpsAllowed": true,
-        "queryStringCachingBehavior": "IgnoreQueryString",
-        "contentTypesToCompress": [
-          "text/plain",
-          "text/html",
-          "text/css",
-          "application/x-javascript",
-          "text/javascript"
-        ],
-        "isCompressionEnabled": true,
-        "origins": [
-          {
-            "name": "origin1",
-            "properties": {
-              "hostName": "[reference(resourceId('Microsoft.Web/sites', parameters('webAppName'))).hostNames[0]]"
+      "resources": [
+        {
+          "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+          "apiVersion": "2022-09-01",
+          "name": "[concat(parameters('name'), '/scm')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('name'))]"
+          ],
+          "properties": {
+            "allow": true
+          }
+        },
+        {
+          "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+          "apiVersion": "2022-09-01",
+          "name": "[concat(parameters('name'), '/ftp')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('name'))]"
+          ],
+          "properties": {
+            "allow": true
+          }
+        },
+        {
+          "type": "sourcecontrols",
+          "apiVersion": "2020-12-01",
+          "name": "web",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('name'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[parameters('repoUrl')]",
+            "branch": "[parameters('branch')]",
+            "IsManualIntegration": false,
+            "deploymentRollbackEnabled": false,
+            "isMercurial": false,
+            "isGitHubAction": true,
+            "gitHubActionConfiguration": {
+              "generateWorkflowFile": true,
+              "workflowSettings": {
+                "appType": "webapp",
+                "publishType": "code",
+                "os": "windows",
+                "runtimeStack": "dotnet",
+                "workflowApiVersion": "2020-12-01",
+                "slotName": "production",
+                "variables": {
+                  "runtimeVersion": "v4.0"
+                }
+              }
             }
           }
-        ]
-      }
-    }
-  ],
-  "outputs": {
-    "hostName": {
-      "type": "String",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', parameters('profileName'), parameters('endpointName'))).hostName]"
+        }
+      ]
     },
-    "originHostHeader": {
-      "type": "String",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', parameters('profileName'), parameters('endpointName'))).originHostHeader]"
+    {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "ContactDatabaseapplicationSelemon",
+      "location": "australiasoutheast",
+      "dependsOn": [
+        "newWorkspaceTemplate"
+      ],
+      "properties": {
+        "ApplicationId": "[parameters('name')]",
+        "Request_Source": "IbizaWebAppExtensionCreate",
+        "Flow_Type": "Redfield",
+        "Application_Type": "web",
+        "WorkspaceResourceId": "/subscriptions/834e4d64-f129-4e7c-93e3-33ceeb786932/resourceGroups/DefaultResourceGroup-SEAU/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-834e4d64-f129-4e7c-93e3-33ceeb786932-SEAU"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "newWorkspaceTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "apiVersion": "2020-08-01",
+              "name": "DefaultWorkspace-834e4d64-f129-4e7c-93e3-33ceeb786932-SEAU",
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "location": "australiasoutheast",
+              "properties": {}
+            }
+          ]
+        }
+      },
+      "subscriptionId": "[parameters('subscriptionId')]",
+      "resourceGroup": "DefaultResourceGroup-SEAU"
     }
-  }
+  ]
 }

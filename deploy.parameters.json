@@ -1,21 +1,45 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "profileName": {
-      "value": "cdn-cz5id766qayfk"
+    "subscriptionId": {
+      "value": "834e4d64-f129-4e7c-93e3-33ceeb786932"
     },
-    "endpointName": {
-      "value": "endpoint-cz5id766qayfk"
+    "resourceGroupName": {
+      "value": "GitHub-Copilot-Challenges"
     },
-    "serverFarmName": {
-      "value": "asp-cz5id766qayfk"
-    },
-    "webAppName": {
-      "value": "web-cz5id766qayfk"
+    "name": {
+      "value": "ContactDatabaseapplicationSelemon"
     },
     "location": {
-      "value": "australiasoutheast"
+      "value": "Australia Southeast"
+    },
+    "hostingPlanName": {
+      "value": "asp-cz5id766qayfk"
+    },
+    "serverFarmResourceGroup": {
+      "value": "contactdatabaseapplication"
+    },
+    "alwaysOn": {
+      "value": false
+    },
+    "ftpsState": {
+      "value": "FtpsOnly"
+    },
+    "currentStack": {
+      "value": "dotnet"
+    },
+    "phpVersion": {
+      "value": "OFF"
+    },
+    "netFrameworkVersion": {
+      "value": "v4.0"
+    },
+    "repoUrl": {
+      "value": "https://github.com/github-cloudlabsuser-1222/Contact-Database-Application"
+    },
+    "branch": {
+      "value": "master"
     }
   }
 }
