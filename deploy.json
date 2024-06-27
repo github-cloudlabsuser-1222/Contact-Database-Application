@@ -40,16 +40,44 @@
     },
     "branch": {
       "type": "String"
+    },
+    "skuName": {
+      "type": "String"
+    },
+    "workerSize": {
+      "type": "Int"
+    },
+    "numberOfWorkers": {
+      "type": "Int"
     }
   },
   "variables": {},
   "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('hostingPlanName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "name": "[parameters('hostingPlanName')]",
+        "sku": {
+          "name": "[parameters('skuName')]",
+          "tier": "Standard",
+          "size": "S1",
+          "family": "S",
+          "capacity": "[parameters('numberOfWorkers')]"
+        },
+        "workerSize": "[parameters('workerSize')]",
+        "numberOfWorkers": "[parameters('numberOfWorkers')]"
+      }
+    },
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-03-01",
       "name": "[parameters('name')]",
       "location": "[parameters('location')]",
       "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
         "microsoft.insights/components/ContactDatabaseapplicationSelemon"
       ],
       "properties": {

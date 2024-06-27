@@ -40,6 +40,15 @@
     },
     "branch": {
       "value": "master"
+    },
+    "skuName": {
+      "value": "S1"
+    },
+    "workerSize": {
+      "value": 1
+    },
+    "numberOfWorkers": {
+      "value": 1
     }
   }
 }
